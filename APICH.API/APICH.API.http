@@ -1,0 +1,6 @@
+@APICH.API_HostAddress = http://192.168.1.103:5195
+
+GET {{APICH.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
