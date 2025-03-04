@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace APICH.CORE.Entity
@@ -12,12 +13,14 @@ namespace APICH.CORE.Entity
         public decimal UnitPrice { get; set; }
 
 
-        public Orders Order { get; set; }
         public Guid OrderId { get; set; }
 
 
-        public Product Product { get; set; }
         public Guid ProductId { get; set; }
+        [JsonIgnore]
+        public Product Product { get; set; }
+        [JsonIgnore]
+        public Orders Order { get; set; }
        
     }
 }

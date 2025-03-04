@@ -1,6 +1,6 @@
 ﻿using APICH.API.Models;
 using APICH.API.Security;
-using APICH.BL.Services;
+using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -57,9 +57,29 @@ namespace APICH.API.Controllers
         [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteProduct(Guid ProductId)
         {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+
+            var product = await productService.GetById(ProductId);
             if (await productService.DeleteById(ProductId) == 1)
-                return Ok("The desired product was successfully deleted.");
-            return BadRequest("Delete encountered an error.");
+            {
+                if (System.IO.File.Exists(product.ImageUrl))
+                {
+                    System.IO.File.Delete(product.ImageUrl);
+                }
+                return Ok("Remove was success full");
+            }
+            return BadRequest("moshkel rokh dad");
+            //if (await productService.DeleteById(ProductId) == 1)
+            //    return Ok("The desired product was successfully deleted.");
+            //return BadRequest("Delete encountered an error.");
         }
     }
 }

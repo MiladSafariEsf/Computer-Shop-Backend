@@ -1,6 +1,6 @@
 ﻿using APICH.API.Models;
 using APICH.API.Security;
-using APICH.BL.Services;
+using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,9 @@ namespace APICH.API.Controllers
                 Name = model.Name,
                 Price = model.Price,
                 Description = model.Description,
+                CategoriesId = model.CategoriesId,
                 ImageUrl = "wwwroot/Image/" + ImageName,
+                CreateAt = DateTime.Now,
             };
             FileStream fileStream = new FileStream("wwwroot/Image/" + ImageName, FileMode.Create);
             await model.Image.CopyToAsync(fileStream);
@@ -90,6 +92,10 @@ namespace APICH.API.Controllers
             foreach (var item in orderModels)
             {
                 var p = await productService.GetById(item.ProductId);
+                if (p.Stock < item.Quantity)
+                    return BadRequest();
+                p.Stock = p.Stock - item.Quantity;
+                await productService.Update(p);
                 var Detail = new OrderDetails()
                 {
                     Id = Guid.NewGuid(),
@@ -118,25 +124,24 @@ namespace APICH.API.Controllers
         [HttpPost("AddReview")]
         public async Task<IActionResult> AddReview(ReviewModel reviews)
         {
-            //var token = Request.Cookies["AuthToken"];
-            //var t = await jwt.ValidateToken(token);
-            //if (t == null)
-            //    return Unauthorized("Invalid or expired token.");
-            //var Number = t.FindFirst(ClaimTypes.Name)?.Value;
-            var User = await userService.GetByNumber("09136801391");
-            //if (User == null)
-            //{
-            //    return BadRequest("Empty");
-            //}
-            var Product = await productService.GetById(reviews.ProductId);
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var User = await userService.GetByNumber(Number);
+            if (User == null)
+            {
+                return BadRequest("Empty");
+            }
             var Review = new Reviews()
             {
                 Id = Guid.NewGuid(),
                 Comment = reviews.Comment,
                 CreateAt = DateTime.Now,
                 Rating = reviews.Rating,
-                //User = User,
-                Product = Product
+                User = User,
+                ProductId = reviews.ProductId
             };
             if (await reviewService.AddReview(Review) != 0)
             {

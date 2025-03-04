@@ -30,7 +30,9 @@ namespace APICH.DAL
             {
                 options.ToTable(nameof(User));
                 options.HasKey(a => a.Number);
-
+                options.HasMany(a => a.Reviews)
+                .WithOne(a => a.User)
+                .HasForeignKey(a => a.UserNumber);
                 options.HasMany(a => a.Orders)
                 .WithOne(a => a.User)
                 .HasForeignKey(a => a.UserNumber);
@@ -49,12 +51,15 @@ namespace APICH.DAL
             {
                 options.ToTable(nameof(Categories)); 
                 options.HasKey(a => a.Id);
-
+                options.HasMany(a => a.Products)
+                .WithOne(a => a.Categories)
+                .HasForeignKey(a => a.CategoriesId);
             });
             modelBuilder.Entity<Reviews>(options =>
             {
                 options.ToTable(nameof(Reviews));
                 options.HasKey(a => a.Id);
+                
             });
             modelBuilder.Entity<OrderDetails>(options =>
             {

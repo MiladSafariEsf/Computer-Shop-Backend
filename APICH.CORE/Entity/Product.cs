@@ -17,5 +17,8 @@ namespace APICH.CORE.Entity
         public int Stock {  get; set; }
         public string ImageUrl { get; set; }
         public DateTime CreateAt { get; set; }
+        public Guid CategoriesId { get; set; }
+        [JsonIgnore]
+        public Categories Categories { get; set; }
     }
 }

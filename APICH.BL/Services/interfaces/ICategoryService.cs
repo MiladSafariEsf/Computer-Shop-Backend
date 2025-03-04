@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.interfaces
 {
     public interface ICategoryService
     {
-        public Task<Categories> GetCategories();
+        public Task<List<Categories>> GetCategories();
         public Task<int> AddCategory(Categories categories);
         public Task<int> DeleteCategoryById(Guid Id);
         public Task<int> EditCategory(Categories categories);
+        public Task<int> GetCategoryCount();
+        public Task<List<Categories>> GetCategoryCountByPageNumber(int PageNumber);
     }
 }

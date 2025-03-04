@@ -4,6 +4,7 @@ using APICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APICH.DAL.Migrations
 {
     [DbContext(typeof(APICH_DbContext))]
-    partial class APICH_DbContextModelSnapshot : ModelSnapshot
+    [Migration("20250303210707_v20")]
+    partial class v20
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,7 +99,7 @@ namespace APICH.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoriesId")
+                    b.Property<Guid?>("CategoriesId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateAt")
@@ -222,13 +225,9 @@ namespace APICH.DAL.Migrations
 
             modelBuilder.Entity("APICH.CORE.Entity.Product", b =>
                 {
-                    b.HasOne("APICH.CORE.Entity.Categories", "Categories")
+                    b.HasOne("APICH.CORE.Entity.Categories", null)
                         .WithMany("Products")
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Categories");
+                        .HasForeignKey("CategoriesId");
                 });
 
             modelBuilder.Entity("APICH.CORE.Entity.Reviews", b =>

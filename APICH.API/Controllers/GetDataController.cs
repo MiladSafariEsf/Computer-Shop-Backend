@@ -1,6 +1,6 @@
 ﻿using APICH.API.Models;
 using APICH.API.Security;
-using APICH.BL.Services;
+using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -98,22 +98,21 @@ namespace APICH.API.Controllers
                 return Forbid("Access denied. Insufficient permissions.");
 
             var OrderL = await orderService.GetAllOrders(PageNumber);
-            var orderListModel = new List<GetOrderModel>();
-
-            foreach (var Item in OrderL)
-            {
-                var Order = new GetOrderModel()
-                {
-                    Id = Item.Id,
-                    UserName = Item.User.UserName,
-                    //ProductId = Item.ProductId,
-                    UserNumber = Item.UserNumber,
-                    //ProductName = Item.Product.Name,
-                    //ProductNumber = Item.Number,
-                };
-                orderListModel.Add(Order);
-            }
-            return Ok(orderListModel);
+            //var orderListModel = new List<GetOrderModel>();
+            //foreach (var Item in OrderL)
+            //{
+            //    var Order = new GetOrderModel()
+            //    {
+            //        Id = Item.Id,
+            //        UserName = Item.User.UserName,
+            //        //ProductId = Item.ProductId,
+            //        UserNumber = Item.UserNumber,
+            //        //ProductName = Item.Product.Name,
+            //        //ProductNumber = Item.Number,
+            //    };
+            //    orderListModel.Add(Order);
+            //}
+            return Ok(OrderL);
         }
         [HttpGet("GetOrderCount")]
         public async Task<IActionResult> GetOrderCount()
@@ -144,9 +143,19 @@ namespace APICH.API.Controllers
             return Ok(await productService.GetProductCount());
         }
         [HttpGet("GetAllCategory")]
-        public async Task<IActionResult> GetAllCategory() 
+        public async Task<IActionResult> GetAllCategory()
         {
             return Ok(await categoryService.GetCategories());
+        }
+        [HttpGet("GetCategoryByPageNumber")]
+        public async Task<IActionResult> GetCategoryByPageNumber(int PageNumber) 
+        {
+            return Ok(await categoryService.GetCategoryCountByPageNumber(PageNumber));
+        }
+        [HttpGet("GetCategoryCount")]
+        public async Task<IActionResult> GetCategoryCount()
+        {
+            return Ok(await categoryService.GetCategoryCount());
         }
         [HttpGet("GetRewiewByProductId")]
         public async Task<IActionResult> GetRewiewByProductId(Guid ProductId)

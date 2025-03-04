@@ -1,4 +1,5 @@
-﻿using APICH.CORE.Entity;
+﻿using APICH.BL.Services.interfaces;
+using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -44,9 +45,9 @@ namespace APICH.BL.Services
             return await repository.Update();
         }
 
-        public async Task<List<Orders>> GetAllOrders(int count)
+        public async Task<List<Orders>> GetAllOrders(int PageNumber)
         {
-            return await repository.GetTable().OrderBy(a => a.UserNumber).Skip((count - 1) * 10).Take(10).Include(a => a.User).ToListAsync();
+            return await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ToListAsync();
         }
 
         public async Task<Orders> GetOrderById(Guid id)

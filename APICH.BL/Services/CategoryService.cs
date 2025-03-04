@@ -1,5 +1,7 @@
-﻿using APICH.CORE.Entity;
+﻿using APICH.BL.Services.interfaces;
+using APICH.CORE.Entity;
 using APICH.DAL.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,9 +33,19 @@ namespace APICH.BL.Services
             throw new NotImplementedException();
         }
 
-        public Task<Categories> GetCategories()
+        public async Task<List<Categories>> GetCategories()
         {
-            throw new NotImplementedException();
+            return await repository.GetAll();
+        }
+
+        public async Task<int> GetCategoryCount()
+        {
+            return await repository.GetTable().CountAsync();
+        }
+
+        public async Task<List<Categories>> GetCategoryCountByPageNumber(int PageNumber)
+        {
+            return await repository.GetTable().OrderBy(a => a.CategoryName).Skip((PageNumber - 1) * 10).Take(10).ToListAsync();
         }
     }
 }

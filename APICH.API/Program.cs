@@ -6,6 +6,7 @@ using APICH.DAL;
 using APICH.BL.Services;
 using Microsoft.EntityFrameworkCore;
 using SFM.Security;
+using APICH.BL.Services.interfaces;
 namespace APICH.API
 {
     public class Program
