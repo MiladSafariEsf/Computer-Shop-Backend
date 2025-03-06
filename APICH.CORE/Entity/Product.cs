@@ -10,7 +10,6 @@ namespace APICH.CORE.Entity
     public class Product : BaseEntity
     {
         public string Name { get; set; }
-        public List<OrderDetails> OrderDetails { get; set; }
         public List<Reviews> Reviews { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
@@ -20,5 +19,7 @@ namespace APICH.CORE.Entity
         public Guid CategoriesId { get; set; }
         [JsonIgnore]
         public Categories Categories { get; set; }
+        [JsonIgnore]
+        public List<OrderDetails> OrderDetails { get; set; }
     }
 }

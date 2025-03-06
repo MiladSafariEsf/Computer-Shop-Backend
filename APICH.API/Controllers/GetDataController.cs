@@ -27,7 +27,7 @@ namespace APICH.API.Controllers
             this.orderService = orderService;
             this.jwt = jwt;
         }
-        [HttpGet("GetById")]
+        [HttpGet("GetProductById")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await productService.GetById(id);
@@ -114,6 +114,36 @@ namespace APICH.API.Controllers
             //}
             return Ok(OrderL);
         }
+        [HttpGet("GetAllDeliveredOrder")]
+        public async Task<IActionResult> GetAllDeliveredOrder(int PageNumber)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+
+            var OrderL = await orderService.GetAllDeliveredOrders(PageNumber);
+            //var orderListModel = new List<GetOrderModel>();
+            //foreach (var Item in OrderL)
+            //{
+            //    var Order = new GetOrderModel()
+            //    {
+            //        Id = Item.Id,
+            //        UserName = Item.User.UserName,
+            //        //ProductId = Item.ProductId,
+            //        UserNumber = Item.UserNumber,
+            //        //ProductName = Item.Product.Name,
+            //        //ProductNumber = Item.Number,
+            //    };
+            //    orderListModel.Add(Order);
+            //}
+            return Ok(OrderL);
+        }
         [HttpGet("GetOrderCount")]
         public async Task<IActionResult> GetOrderCount()
         {
@@ -127,6 +157,20 @@ namespace APICH.API.Controllers
             if (rol != Role.Admin())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await orderService.GetOrderCount());
+        }
+        [HttpGet("GetDeliveredOrderCount")]
+        public async Task<IActionResult> GetDeliveredOrderCount()
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+            return Ok(await orderService.GetDeliveredOrderCount());
         }
         [HttpGet("GetProductCount")]
         public async Task<IActionResult> GetProductCount()

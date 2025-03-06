@@ -14,8 +14,11 @@ namespace APICH.BL.Services.interfaces
         public Task<int> DeleteOrderById(Guid Id);
         public Task<Orders> GetOrderById(int id);
         public Task<List<Orders>> GetOrderByUserNumber(string UserNumber);
+
         public Task<int> AddOrderList(List<Orders> orders);
-        public Task<List<Orders>> GetAllOrders(int count);
+        public Task<List<Orders>> GetAllOrders(int PageNumber);
+        public Task<List<Orders>> GetAllDeliveredOrders(int PageNumber);
         public Task<int> GetOrderCount();
+        public Task<int> GetDeliveredOrderCount();
     }
 }

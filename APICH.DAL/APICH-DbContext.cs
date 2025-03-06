@@ -67,6 +67,11 @@ namespace APICH.DAL
                 options.HasKey(a => a.Id);
 
             });
+            modelBuilder.Entity<Baners>(options =>
+            {
+                options.ToTable(nameof(Baners));
+                options.HasKey(a => a.Id);
+            });
         }
     }
 }

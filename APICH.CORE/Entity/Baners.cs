@@ -8,5 +8,7 @@ namespace APICH.CORE.Entity
 {
     public class Baners : BaseEntity
     {
+        public string BanerImageUrl { get; set; }
+        public string BanerName { get; set; }
     }
 }

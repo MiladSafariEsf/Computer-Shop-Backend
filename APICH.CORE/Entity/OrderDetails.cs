@@ -11,13 +11,8 @@ namespace APICH.CORE.Entity
     {
         public int Quantity {  get; set; }
         public decimal UnitPrice { get; set; }
-
-
         public Guid OrderId { get; set; }
-
-
         public Guid ProductId { get; set; }
-        [JsonIgnore]
         public Product Product { get; set; }
         [JsonIgnore]
         public Orders Order { get; set; }

@@ -1,5 +1,6 @@
 ﻿using APICH.API.Models;
 using APICH.API.Security;
+using APICH.BL.Services;
 using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
@@ -19,6 +20,7 @@ namespace APICH.API.Controllers
         private readonly IOrderService orderService;
         private readonly IReviewService reviewService;
         private readonly ICategoryService categoryService;
+        private readonly IBanerService banerService;
         private readonly JwtService jwt;
 
         public AddDataController(IUserService userService,
@@ -26,6 +28,8 @@ namespace APICH.API.Controllers
             IOrderService orderService,
             IReviewService reviewService,
             ICategoryService categoryService,
+            IBanerService banerService,
+
             JwtService jwt) 
         {
             this.userService = userService;
@@ -33,6 +37,7 @@ namespace APICH.API.Controllers
             this.orderService = orderService;
             this.reviewService = reviewService;
             this.categoryService = categoryService;
+            this.banerService = banerService;
             this.jwt = jwt;
         }
         [HttpPost("AddProduct")]
@@ -172,6 +177,35 @@ namespace APICH.API.Controllers
                 return Ok();
             }
             return BadRequest("There are Problem in Adding");
+        }
+        [HttpPost("AddBaner")]
+        public async Task<IActionResult> AddBaner(AddBanerModel model)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+
+            var i = Guid.NewGuid();
+            var ImageName = i.ToString() + Path.GetExtension(model.Image.FileName);
+            var Baner = new Baners()
+            {
+                Id = i,
+                BanerName = model.BanerName,
+                BanerImageUrl = "wwwroot/Baners/" + ImageName,
+
+            };
+            FileStream fileStream = new FileStream("wwwroot/Baners/" + ImageName, FileMode.Create);
+            await model.Image.CopyToAsync(fileStream);
+            fileStream.Close();
+            if (await banerService.AddBaner(Baner) == 0)
+                return BadRequest("Oh No!");
+            return Ok("Add Baner Success full!");
         }
     }
 }

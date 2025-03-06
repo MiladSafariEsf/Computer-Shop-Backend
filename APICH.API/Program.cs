@@ -7,6 +7,7 @@ using APICH.BL.Services;
 using Microsoft.EntityFrameworkCore;
 using SFM.Security;
 using APICH.BL.Services.interfaces;
+
 namespace APICH.API
 {
     public class Program
@@ -22,12 +23,14 @@ namespace APICH.API
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IBanerService, BanerService>();
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddControllers();
             builder.Services.AddDbContext<APICH_DbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DBCMH"));
             });
+            
             // اضافه کردن سرویس CORS
             builder.Services.AddCors(options =>
             {
@@ -39,7 +42,6 @@ namespace APICH.API
                           .AllowCredentials(); // اجازه به درخواست‌های دارای credentials
                 });
             });
-
             //builder.Services.AddRateLimiter(options =>
             //{
             //    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -54,8 +56,21 @@ namespace APICH.API
             //            }
             //        ));
             //});
-
             var app = builder.Build();
+
+            // استفاده از StaticFiles برای نمایش تصاویر و تنظیم هدرهای کش
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    OnPrepareResponse = context =>
+            //    {
+            //        var contentType = context.Context.Response.ContentType;
+            //        if (contentType != null && contentType.StartsWith("image/"))
+            //        {
+            //            // تنظیم هدر Cache-Control برای تصاویر
+            //            context.Context.Response.Headers["Cache-Control"] = "public, max-age=86400"; // 24 ساعت کش
+            //        }
+            //    }
+            //});
 
             //app.UseRateLimiter();
             // Configure the HTTP request pipeline.

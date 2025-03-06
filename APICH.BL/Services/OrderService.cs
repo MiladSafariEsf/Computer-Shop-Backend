@@ -45,9 +45,19 @@ namespace APICH.BL.Services
             return await repository.Update();
         }
 
+        public async Task<List<Orders>> GetAllDeliveredOrders(int PageNumber)
+        {
+            return await repository.GetTable().Where(x => x.IsDelivered == true).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+        }
+
         public async Task<List<Orders>> GetAllOrders(int PageNumber)
         {
-            return await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ToListAsync();
+            return await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+        }
+
+        public Task<int> GetDeliveredOrderCount()
+        {
+            return repository.GetTable().Where(x => x.IsDelivered == true).CountAsync();
         }
 
         public async Task<Orders> GetOrderById(Guid id)

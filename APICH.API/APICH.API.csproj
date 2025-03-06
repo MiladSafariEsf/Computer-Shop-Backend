@@ -29,6 +29,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\Image\" />
     <Folder Include="wwwroot\Image\" />
+    <Folder Include="wwwroot\Baners\" />
   </ItemGroup>
 
 </Project>
