@@ -1,4 +1,4 @@
-﻿namespace APICH.API.Models
+﻿namespace APICH.API.Models.Add
 {
     public class OrderModel
     {

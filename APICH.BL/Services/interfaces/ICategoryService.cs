@@ -10,6 +10,7 @@ namespace APICH.BL.Services.interfaces
     public interface ICategoryService
     {
         public Task<List<Categories>> GetCategories();
+        public Task<Categories> GetCategoryById(Guid Id);
         public Task<int> AddCategory(Categories categories);
         public Task<int> DeleteCategoryById(Guid Id);
         public Task<int> EditCategory(Categories categories);

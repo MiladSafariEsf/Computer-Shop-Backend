@@ -17,7 +17,6 @@ namespace APICH.CORE.Entity
         public DateTime CreateAt { get; set; }
         [JsonIgnore]
         public Product Product { get; set; }
-        [JsonIgnore]
         public User User { get; set; }
     }
 }

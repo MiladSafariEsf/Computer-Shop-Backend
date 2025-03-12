@@ -2,7 +2,7 @@
 using APICH.CORE.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.Classes
 {
     public class ProductService : IProductService
     {
@@ -25,11 +25,15 @@ namespace APICH.BL.Services
 
         public async Task<List<Product>> GetAll(int PageNumber)
         {
+            return await repository.GetTable().Where(x => x.Stock > 0).OrderBy(a => a.Price).Skip((PageNumber - 1) * 10).Take(10).ToListAsync();
+        }
+        public async Task<List<Product>> GetAllAdmin(int PageNumber)
+        {
             return await repository.GetTable().OrderBy(a => a.Price).Skip((PageNumber - 1) * 10).Take(10).ToListAsync();
         }
         public async Task<Product> GetAllDataOfProductById(Guid Id)
         {
-            return await repository.GetTable().Include(a => a.Reviews).FirstOrDefaultAsync(a => a.Id == Id);
+            return await repository.GetTable().Include(a => a.Reviews.OrderByDescending(a => a.CreateAt)).ThenInclude(a => a.User).FirstOrDefaultAsync(a => a.Id == Id);
         }
 
         public async Task<Product> GetById(Guid id)
@@ -75,6 +79,7 @@ namespace APICH.BL.Services
             pro.Description = product.Description;
             pro.Price = product.Price;
             pro.Name = product.Name;
+            pro.Stock = product.Stock;
             pro.ImageUrl = product.ImageUrl;
             return await repository.Update();
         }

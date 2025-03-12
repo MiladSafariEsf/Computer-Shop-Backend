@@ -2,7 +2,7 @@
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.Classes
 {
     public class BanerService : IBanerService
     {

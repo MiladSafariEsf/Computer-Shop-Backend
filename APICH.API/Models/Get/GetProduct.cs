@@ -1,4 +1,4 @@
-﻿namespace APICH.API.Models
+﻿namespace APICH.API.Models.Get
 {
     public class GetProducts
     {

@@ -7,6 +7,8 @@ using SFM.Security;
 using System.Security.Claims;
 using Newtonsoft.Json.Linq;
 using APICH.BL.Services.interfaces;
+using APICH.API.Models.AAA;
+
 
 namespace APICH.API.Controllers
 {
@@ -35,22 +37,16 @@ namespace APICH.API.Controllers
                 SameSite = SameSiteMode.Strict, // جلوگیری از ارسال کوکی در درخواست‌های third-party
                 Expires = DateTime.UtcNow.AddDays(7)
             };
-            TokenModel token;
+            string token;
             if (User.IsAdmin == true)
             {
-                token = new TokenModel()
-                {
-                    token = await jwt.GenerateToken(model.Number, Role.Admin())
-                };
+                token = await jwt.GenerateToken(model.Number, Role.Admin());
             }
             else
             {
-                token = new TokenModel()
-                {
-                    token = await jwt.GenerateToken(model.Number, Role.User())
-                };
+                token = await jwt.GenerateToken(model.Number, Role.User());
             }
-            Response.Cookies.Append("AuthToken", token.token, cookieOptions);
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
             return Ok("Login was success full!");
         }
         [HttpPost("Register")]
@@ -77,31 +73,11 @@ namespace APICH.API.Controllers
                     Expires = DateTime.UtcNow.AddDays(7)
                 };
                 await userService.AddUser(NewUser);
-                var token = new TokenModel()
-                {
-                    token = await jwt.GenerateToken(NewUser.Number, Role.User())
-                };
-                Response.Cookies.Append("AuthToken", token.token, cookieOptions);
+                string token = await jwt.GenerateToken(NewUser.Number, Role.User());
+                Response.Cookies.Append("AuthToken", token, cookieOptions);
                 return Ok();
             }
             return BadRequest();
-        }
-        [HttpPost("ValidationToken")]
-        public async Task<IActionResult> ValidationToken(TokenModel model)
-        {
-            var t = await jwt.ValidateToken(model.token);
-            if (t == null)
-                return BadRequest("VallidationError");
-
-            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
-            var User = await userService.GetByNumber(Number);
-            var role = t.FindFirst(ClaimTypes.Role)?.Value;
-            var m = new TokenUserInfo()
-            {
-                number = User.Number,
-                username = User.UserName
-            };
-            return Ok(m);
         }
         [HttpPost("logout")]
         public IActionResult Logout()
@@ -118,10 +94,12 @@ namespace APICH.API.Controllers
                 return StatusCode(203);
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var user = await userService.GetByNumber(Number);
+            bool isAdmin = t.FindFirst(ClaimTypes.Role)?.Value == Role.Admin();
             var model = new UserDataModel()
             {
                 number = user.Number,
                 username = user.UserName,
+                isAdmin = isAdmin,
             };
             return Ok(model);
         }

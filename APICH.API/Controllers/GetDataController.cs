@@ -1,5 +1,7 @@
 ﻿using APICH.API.Models;
+using APICH.API.Models.Get;
 using APICH.API.Security;
+using APICH.BL.Services.Classes;
 using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
@@ -7,20 +9,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using SFM.Security;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace APICH.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class GetDataController : ControllerBase
     {
+        private readonly IUserService userService;
         private readonly IReviewService reviewService;
         private readonly IProductService productService;
         private readonly ICategoryService categoryService;
         private readonly IOrderService orderService;
         private readonly JwtService jwt;
 
-        public GetDataController(IReviewService reviewService,IProductService productService,ICategoryService categoryService, IOrderService orderService, JwtService jwt)
+        public GetDataController(IUserService userService, IReviewService reviewService,IProductService productService,ICategoryService categoryService, IOrderService orderService, JwtService jwt)
         {
+            this.userService = userService;
             this.reviewService = reviewService;
             this.productService = productService;
             this.categoryService = categoryService;
@@ -77,6 +82,12 @@ namespace APICH.API.Controllers
         public async Task<IActionResult> GetAllProduct(int PageNumber)
         {
             var model = await productService.GetAll(PageNumber);
+            return Ok(model);
+        }
+        [HttpGet("GetAllAdminProduct")]
+        public async Task<IActionResult> GetAllAdminProduct(int PageNumber)
+        {
+            var model = await productService.GetAllAdmin(PageNumber);
             return Ok(model);
         }
         [HttpGet("SearchProduct")]
@@ -192,7 +203,7 @@ namespace APICH.API.Controllers
             return Ok(await categoryService.GetCategories());
         }
         [HttpGet("GetCategoryByPageNumber")]
-        public async Task<IActionResult> GetCategoryByPageNumber(int PageNumber) 
+        public async Task<IActionResult> GetCategoryByPageNumber(int PageNumber)
         {
             return Ok(await categoryService.GetCategoryCountByPageNumber(PageNumber));
         }
@@ -209,7 +220,44 @@ namespace APICH.API.Controllers
         [HttpGet("GetAllDataOfProductById")]
         public async Task<IActionResult> GetAllDataOfProductById(Guid Id) 
         {
-            return Ok(await productService.GetAllDataOfProductById(Id));
+            string UserName = null;
+            var token = Request.Cookies["AuthToken"];
+            var Number = "0";
+            if (token != null)
+            {
+                var t = (await jwt.ValidateToken(token));
+                Number = t.FindFirst(ClaimTypes.Name)?.Value ?? "";
+                UserName = (await userService.GetByNumber(Number))?.UserName;
+            }
+
+            var AllData = await productService.GetAllDataOfProductById(Id);
+            var AllComment = AllData.Reviews
+                .Select(p => new GetAllDataOfProductComments
+                {
+                    Id = p.Id,
+                    UserName = p.User.UserName,
+                    Comment = p.Comment, 
+                    Rating = p.Rating,
+                    IsOwner = p.UserNumber == Number
+                })
+                .ToList();
+            var RC = await reviewService.ReviewCountByProductId(Id);
+            var DataProduct = new GetAllDataOfProduct()
+            {
+                Id = Id,
+                AverageRate = await reviewService.GetAverageRate(Id),
+                Reviews = AllComment,
+                CreateAt = AllData.CreateAt,
+                Description = AllData.Description,
+                ImageUrl = AllData.ImageUrl,
+                Name = AllData.Name,
+                Price = AllData.Price,
+                Stock = AllData.Stock,
+                ReviewCount = RC,
+                UserName = UserName,
+            };
+
+            return Ok(DataProduct);
         }
     }
 }

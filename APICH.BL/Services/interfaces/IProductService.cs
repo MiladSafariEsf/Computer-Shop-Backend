@@ -10,6 +10,7 @@ namespace APICH.BL.Services.interfaces
     public interface IProductService
     {
         public Task<List<Product>> GetAll(int PageNumber);
+        public Task<List<Product>> GetAllAdmin(int PageNumber);
         Task<List<Product>> GetByIds(List<Guid> productIds);
         public Task<Product> GetAllDataOfProductById(Guid Id);
         public Task<Product> GetById(Guid id);

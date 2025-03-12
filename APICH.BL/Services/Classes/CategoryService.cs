@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.Classes
 {
     public class CategoryService : ICategoryService
     {
@@ -28,14 +28,21 @@ namespace APICH.BL.Services
             return await repository.DeleteById(Id);
         }
 
-        public Task<int> EditCategory(Categories categories)
+        public async Task<int> EditCategory(Categories categories)
         {
-            throw new NotImplementedException();
+            var cat = await repository.GetById(categories.Id);
+            cat.CategoryName = categories.CategoryName;
+            return await repository.Update();
         }
 
         public async Task<List<Categories>> GetCategories()
         {
             return await repository.GetAll();
+        }
+
+        public async Task<Categories> GetCategoryById(Guid Id)
+        {
+            return await repository.GetById(Id);
         }
 
         public async Task<int> GetCategoryCount()

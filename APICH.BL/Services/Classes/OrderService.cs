@@ -8,13 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.Classes
 {
     public class OrderService : IOrderService
     {
         private readonly IRepository<Orders> repository;
 
-        public OrderService(IRepository<Orders> repository) 
+        public OrderService(IRepository<Orders> repository)
         {
             this.repository = repository;
         }
@@ -47,12 +47,14 @@ namespace APICH.BL.Services
 
         public async Task<List<Orders>> GetAllDeliveredOrders(int PageNumber)
         {
-            return await repository.GetTable().Where(x => x.IsDelivered == true).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+            return await repository.GetTable().Where(x => x.IsDelivered == true).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).OrderBy(a => a.CreateAt).ToListAsync();
         }
 
         public async Task<List<Orders>> GetAllOrders(int PageNumber)
         {
-            return await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+            var d = await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+            d.Select(a => a.CreateAt = a.CreateAt.Date);
+            return d;
         }
 
         public Task<int> GetDeliveredOrderCount()

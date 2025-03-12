@@ -9,9 +9,12 @@ namespace APICH.BL.Services.interfaces
 {
     public interface IReviewService
     {
+        public Task<Reviews> GetReviewById(Guid reviewId);
         public Task<List<Reviews>> GetReviewByProductId(Guid productId);
         public Task<int> AddReview(Reviews review);
         public Task<int> EditReview(Reviews review);
-        public Task<int> DeleteReview(Guid productId);
+        public Task<int> ReviewCountByProductId(Guid ProductId);
+        public Task<float> GetAverageRate(Guid Id);
+        public Task<int> DeleteReview(Guid Id);
     }
 }

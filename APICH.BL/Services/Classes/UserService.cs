@@ -8,13 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APICH.BL.Services
+namespace APICH.BL.Services.Classes
 {
     public class UserService : IUserService
     {
         private readonly IRepository<User> repository;
 
-        public UserService(IRepository<User> repository) 
+        public UserService(IRepository<User> repository)
         {
             this.repository = repository;
         }
@@ -39,7 +39,7 @@ namespace APICH.BL.Services
         {
             var User = await repository.GetById(user.Id);
             User.HashedPassword = user.HashedPassword;
-            return await repository.Update(); 
+            return await repository.Update();
         }
     }
 }

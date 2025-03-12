@@ -13,46 +13,18 @@ namespace APICH.API.Controllers
     [ApiController]
     public class DeleteDataController : ControllerBase
     {
+        private readonly IReviewService reviewService;
+        private readonly ICategoryService categoryService;
         private readonly IProductService productService;
         private readonly IOrderService orderService;
         private readonly JwtService jwt;
-        public DeleteDataController(IProductService productService, IOrderService orderService, JwtService jwt)
+        public DeleteDataController(IReviewService reviewService, ICategoryService categoryService, IProductService productService, IOrderService orderService, JwtService jwt)
         {
+            this.reviewService = reviewService;
+            this.categoryService = categoryService;
             this.productService = productService;
             this.orderService = orderService;
             this.jwt = jwt;
-        }
-        [HttpDelete("RemoveProductById")]
-        public async Task<IActionResult> RemoveProductById(DeleteModel deleteModel)
-        {
-            var product = await productService.GetById(deleteModel.Id);
-            if (deleteModel.Id == Guid.Empty)
-            {
-                return BadRequest("Empty");
-            }
-            if (product == null)
-            {
-                return BadRequest("Null");
-            }
-            var user = await jwt.ValidateToken(deleteModel.Token);
-            if (user == null)
-            {
-                return BadRequest();
-            }
-            if (user.FindFirst(ClaimTypes.Role)?.Value == Role.Admin())
-            {
-                if (await productService.DeleteById(deleteModel.Id) == 1)
-                {
-                    if (System.IO.File.Exists(product.ImageUrl))
-                    {
-                        System.IO.File.Delete(product.ImageUrl);
-                    }
-                    return Ok("Remove was success full");
-                }
-                return BadRequest("moshkel rokh dad");
-            }
-            else
-                return BadRequest("admin nistid");
         }
         [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteProduct(Guid ProductId)
@@ -80,6 +52,39 @@ namespace APICH.API.Controllers
             //if (await productService.DeleteById(ProductId) == 1)
             //    return Ok("The desired product was successfully deleted.");
             //return BadRequest("Delete encountered an error.");
+        }
+        [HttpDelete("DeleteCategoryById")]
+        public async Task<IActionResult> DeleteCategoryById(Guid CategoryId)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+            if (await categoryService.DeleteCategoryById(CategoryId) == 1)
+                return Ok("Remove was success full");
+            return BadRequest();
+        }
+        [HttpDelete("DeleteReviewById")]
+        public async Task<IActionResult> DeleteReviewById(Guid ReviewId)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+
+            var Review = await reviewService.GetReviewById(ReviewId);
+            if (Review.UserNumber == Number)
+            {
+                return Ok(await reviewService.DeleteReview(ReviewId));
+            }
+            return BadRequest();
         }
     }
 }

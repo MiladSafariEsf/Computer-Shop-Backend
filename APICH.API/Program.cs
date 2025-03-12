@@ -3,10 +3,10 @@ using System.Threading.RateLimiting;
 
 using APICH.DAL.Repository;
 using APICH.DAL;
-using APICH.BL.Services;
 using Microsoft.EntityFrameworkCore;
 using SFM.Security;
 using APICH.BL.Services.interfaces;
+using APICH.BL.Services.Classes;
 
 namespace APICH.API
 {

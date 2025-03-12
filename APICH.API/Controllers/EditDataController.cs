@@ -1,4 +1,4 @@
-﻿using APICH.API.Models;
+﻿using APICH.API.Models.Edit;
 using APICH.API.Security;
 using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
@@ -12,12 +12,14 @@ namespace APICH.API.Controllers
     [ApiController]
     public class EditDataController : ControllerBase
     {
+        private readonly ICategoryService categoryService;
         private readonly IProductService productService;
         private readonly IOrderService orderService;
         private readonly JwtService jwt;
 
-        public EditDataController(IProductService productService, IOrderService orderService, JwtService jwt)
+        public EditDataController(ICategoryService categoryService , IProductService productService, IOrderService orderService, JwtService jwt)
         {
+            this.categoryService = categoryService;
             this.productService = productService;
             this.orderService = orderService;
             this.jwt = jwt;
@@ -65,6 +67,7 @@ namespace APICH.API.Controllers
                 NewProduct.Name = product.name;
                 NewProduct.Price = product.price;
                 NewProduct.Description = product.description;
+                NewProduct.Stock = product.Stock;
                 NewProduct.ImageUrl = "wwwroot/Image/" + ImageName;
                 //create new file
                 FileStream fileStream = new FileStream("wwwroot/Image/" + ImageName, FileMode.Create);
@@ -79,62 +82,33 @@ namespace APICH.API.Controllers
                 NewProduct.Name = product.name;
                 NewProduct.Price = product.price;
                 NewProduct.Description = product.description;
+                NewProduct.Stock = product.Stock;
                 NewProduct.ImageUrl = OldProduct.ImageUrl;
             }
             //Complete Edit
-            if (await productService.Update(NewProduct) == 1)
+            if (await productService.Update(NewProduct) != 0)
                 return Ok("Edit was success full");
             return BadRequest("Edit Error");
         }
-        //[HttpPut("EditProduct")]
-        //public async Task<IActionResult> EditProduct(EditProductModel model)
-        //{
-        //    //validation admin
-        //    var t = await jwt.ValidateToken(model.Token);
-        //    if (t == null)
-        //        return BadRequest("Null");
+        [HttpPut("UpdateCategory")]
+        public async Task<IActionResult> UpdateCategory(Guid CategoryId, CategoryEditModel Category)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
 
-        //    var username = t.FindFirst(ClaimTypes.Name)?.Value;
-        //    var role = t.FindFirst(ClaimTypes.Role)?.Value;
-        //    if (role != Role.Admin())
-        //        return BadRequest("Role Erorr");
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
 
-        //    //Get Old Product
-        //    var OldProduct = await productService.GetById(model.Id);
-        //    var NewProduct = new Product();
-        //    //If Image was't Null
-        //    if (model.Image != null)
-        //    {
-        //        //delete proccess
-        //        if (System.IO.File.Exists(OldProduct.ImageUrl))
-        //            System.IO.File.Delete(OldProduct.ImageUrl);
-        //        //edit proccess
-        //        var ImageName = model.Id.ToString() + Path.GetExtension(model.Image.FileName);
-
-        //        NewProduct.Id = model.Id;
-        //        NewProduct.Name = model.Name;
-        //        NewProduct.Price = model.Price;
-        //        NewProduct.Description = model.Description;
-        //        NewProduct.ImageUrl = "wwwroot/Image/" + ImageName;
-        //        //create new file
-        //        FileStream fileStream = new FileStream("wwwroot/Image/" + ImageName, FileMode.Create);
-        //        await model.Image.CopyToAsync(fileStream);
-        //        fileStream.Close();
-        //    }
-
-        //    //If Image was null
-        //    else
-        //    {
-        //        NewProduct.Id = model.Id;
-        //        NewProduct.Name = model.Name;
-        //        NewProduct.Price = model.Price;
-        //        NewProduct.Description = model.Description;
-        //        NewProduct.ImageUrl = OldProduct.ImageUrl;
-        //    }
-        //    //Complete Edit
-        //    if (await productService.Update(NewProduct) == 1)
-        //        return Ok("Edit was success full");
-        //    return BadRequest("Edit Error");
-        //}
+            var cat = new Categories()
+            {
+                Id = CategoryId,
+                CategoryName = Category.CategoryName,
+            };
+            return Ok(await categoryService.EditCategory(cat));
+        }
     }
 }

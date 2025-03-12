@@ -1,7 +1,7 @@
 ﻿using APICH.CORE.Entity;
 using Microsoft.AspNetCore.SignalR;
 
-namespace APICH.API.Models
+namespace APICH.API.Models.Add
 {
     public class ReviewModel
     {

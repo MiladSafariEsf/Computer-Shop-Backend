@@ -1,4 +1,4 @@
-﻿using APICH.API.Models;
+﻿using APICH.API.Models.Add;
 using APICH.API.Security;
 using APICH.BL.Services;
 using APICH.BL.Services.interfaces;
@@ -62,6 +62,7 @@ namespace APICH.API.Controllers
                 Price = model.Price,
                 Description = model.Description,
                 CategoriesId = model.CategoriesId,
+                Stock = model.Stock,
                 ImageUrl = "wwwroot/Image/" + ImageName,
                 CreateAt = DateTime.Now,
             };
@@ -148,9 +149,13 @@ namespace APICH.API.Controllers
                 User = User,
                 ProductId = reviews.ProductId
             };
+            var RID = new ReviewIdAdd()
+            {
+                Id = Review.Id,
+            };
             if (await reviewService.AddReview(Review) != 0)
             {
-                return Ok();
+                return Ok(RID);
             }
             return BadRequest("There are Problem in Adding");
         }
