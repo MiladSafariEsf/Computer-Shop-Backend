@@ -10,5 +10,6 @@ namespace APICH.CORE.Entity
     {
         public string BanerImageUrl { get; set; }
         public string BanerName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -7,11 +7,15 @@ using APICH.CORE.Entity;
 
 namespace APICH.BL.Services.interfaces
 {
-    public interface IBanerService
+    public interface IBannerService
     {
+        public Task<Baners> GetBannerById(Guid id); 
         public Task<List<Baners>> GetAllBaners();
+        public Task<List<Baners>> GetAllBanersAdmin(int PageNumber);
         public Task<int> DeleteBanerById(Guid id);
         public Task<int> EditBaner(Baners baners);
         public Task<int> AddBaner(Baners baner);
+        public Task<int> GetBanerCount();
+        public Task<int> GetBanerCountAdmin();
     }
 }

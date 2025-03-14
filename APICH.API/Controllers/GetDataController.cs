@@ -8,14 +8,17 @@ using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using SFM.Security;
+using PersianDate;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using PersianDate.Standard;
 namespace APICH.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class GetDataController : ControllerBase
     {
+        private readonly IBannerService banerService;
         private readonly IUserService userService;
         private readonly IReviewService reviewService;
         private readonly IProductService productService;
@@ -23,8 +26,9 @@ namespace APICH.API.Controllers
         private readonly IOrderService orderService;
         private readonly JwtService jwt;
 
-        public GetDataController(IUserService userService, IReviewService reviewService,IProductService productService,ICategoryService categoryService, IOrderService orderService, JwtService jwt)
+        public GetDataController(IBannerService banerService , IUserService userService, IReviewService reviewService,IProductService productService,ICategoryService categoryService, IOrderService orderService, JwtService jwt)
         {
+            this.banerService = banerService;
             this.userService = userService;
             this.reviewService = reviewService;
             this.productService = productService;
@@ -109,20 +113,6 @@ namespace APICH.API.Controllers
                 return Forbid("Access denied. Insufficient permissions.");
 
             var OrderL = await orderService.GetAllOrders(PageNumber);
-            //var orderListModel = new List<GetOrderModel>();
-            //foreach (var Item in OrderL)
-            //{
-            //    var Order = new GetOrderModel()
-            //    {
-            //        Id = Item.Id,
-            //        UserName = Item.User.UserName,
-            //        //ProductId = Item.ProductId,
-            //        UserNumber = Item.UserNumber,
-            //        //ProductName = Item.Product.Name,
-            //        //ProductNumber = Item.Number,
-            //    };
-            //    orderListModel.Add(Order);
-            //}
             return Ok(OrderL);
         }
         [HttpGet("GetAllDeliveredOrder")]
@@ -238,7 +228,8 @@ namespace APICH.API.Controllers
                     UserName = p.User.UserName,
                     Comment = p.Comment, 
                     Rating = p.Rating,
-                    IsOwner = p.UserNumber == Number
+                    IsOwner = p.UserNumber == Number,
+                    date = p.CreateAt.ToFa(),
                 })
                 .ToList();
             var RC = await reviewService.ReviewCountByProductId(Id);
@@ -258,6 +249,82 @@ namespace APICH.API.Controllers
             };
 
             return Ok(DataProduct);
+        }
+        [HttpGet("GetBannerCountAdmin")]
+        public async Task<IActionResult> GetBannerCountAdmin()
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+            return Ok(await banerService.GetBanerCountAdmin());
+        }
+        [HttpGet("GetBannerCount")]
+        public async Task<IActionResult> GetBannerCount()
+        {
+            return Ok(await banerService.GetBanerCount());
+        }
+        [HttpGet("GetBanerImageByPath")]
+        public IActionResult GetBanerImageByPath(string filePath)
+        {
+            var rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Baners");
+            var fullPath = Path.GetFullPath(Path.Combine(rootPath, filePath));
+
+            // جلوگیری از حملات Path Traversal
+            if (!fullPath.StartsWith(rootPath))
+            {
+                return BadRequest("Invalid file path.");
+            }
+
+            // بررسی وجود فایل
+            if (!System.IO.File.Exists(fullPath))
+            {
+                return NotFound();
+            }
+
+            // بررسی فرمت‌های مجاز
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+            var extension = Path.GetExtension(fullPath).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest("Invalid file type.");
+            }
+
+            // تعیین نوع محتوا
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(fullPath, out var contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // باز کردن فایل با مدیریت بهینه حافظه
+            var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+            return File(fileStream, contentType);
+        }
+        [HttpGet("GetAllBanners")]
+        public async Task<IActionResult> GetAllBanners()
+        {
+            return Ok(await banerService.GetAllBaners());
+        }
+        [HttpGet("GetAllBannersAdmin")]
+        public async Task<IActionResult> GetAllBannersAdmin(int PageNumber)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin())
+                return Forbid("Access denied. Insufficient permissions.");
+            return Ok(await banerService.GetAllBanersAdmin(PageNumber));
         }
     }
 }

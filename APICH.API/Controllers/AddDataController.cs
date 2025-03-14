@@ -20,7 +20,7 @@ namespace APICH.API.Controllers
         private readonly IOrderService orderService;
         private readonly IReviewService reviewService;
         private readonly ICategoryService categoryService;
-        private readonly IBanerService banerService;
+        private readonly IBannerService banerService;
         private readonly JwtService jwt;
 
         public AddDataController(IUserService userService,
@@ -28,7 +28,7 @@ namespace APICH.API.Controllers
             IOrderService orderService,
             IReviewService reviewService,
             ICategoryService categoryService,
-            IBanerService banerService,
+            IBannerService banerService,
 
             JwtService jwt) 
         {
@@ -201,8 +201,9 @@ namespace APICH.API.Controllers
             var Baner = new Baners()
             {
                 Id = i,
-                BanerName = model.BanerName,
+                BanerName = model.Name,
                 BanerImageUrl = "wwwroot/Baners/" + ImageName,
+                IsActive = model.IsActive,
 
             };
             FileStream fileStream = new FileStream("wwwroot/Baners/" + ImageName, FileMode.Create);

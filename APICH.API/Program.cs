@@ -23,7 +23,7 @@ namespace APICH.API
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IBanerService, BanerService>();
+            builder.Services.AddScoped<IBannerService, BanerService>();
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddControllers();
             builder.Services.AddDbContext<APICH_DbContext>(options =>

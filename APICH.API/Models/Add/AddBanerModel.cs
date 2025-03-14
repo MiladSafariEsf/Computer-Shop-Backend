@@ -2,7 +2,8 @@
 {
     public class AddBanerModel
     {
-        public string BanerName { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
         public IFormFile Image { get; set; }
     }
 }

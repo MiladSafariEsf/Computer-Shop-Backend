@@ -52,7 +52,7 @@ namespace APICH.BL.Services.Classes
 
         public async Task<List<Orders>> GetAllOrders(int PageNumber)
         {
-            var d = await repository.GetTable().OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+            var d = await repository.GetTable().Where(x => x.IsDelivered == false).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
             d.Select(a => a.CreateAt = a.CreateAt.Date);
             return d;
         }
@@ -79,7 +79,7 @@ namespace APICH.BL.Services.Classes
 
         public Task<int> GetOrderCount()
         {
-            return repository.GetTable().CountAsync();
+            return repository.GetTable().Where(x => x.IsDelivered == false).CountAsync();
         }
     }
 }
