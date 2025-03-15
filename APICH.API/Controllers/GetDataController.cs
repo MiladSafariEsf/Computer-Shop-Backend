@@ -98,7 +98,12 @@ namespace APICH.API.Controllers
         public async Task<IActionResult> SearchProduct(string search)
         {
             return Ok(await productService.Search(search));
-        }   
+        }
+        [HttpGet("AdvancedSearchProduct")]
+        public async Task<IActionResult> AdvancedSearchProduct(string? search,int? maxPrice,int? minPrice,Guid? category)
+        {
+            return Ok(await productService.AdvancedSearch(search,maxPrice,minPrice,category));
+        }
         [HttpGet("GetAllOrder")]
         public async Task<IActionResult> GetAllOrder(int PageNumber)
         {

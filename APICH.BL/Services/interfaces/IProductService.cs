@@ -15,6 +15,7 @@ namespace APICH.BL.Services.interfaces
         public Task<Product> GetAllDataOfProductById(Guid Id);
         public Task<Product> GetById(Guid id);
         public Task<List<Product>> Search(string search);
+        public Task<List<Product>> AdvancedSearch(string? search, int? maxPrice, int? minPrice,Guid? category);
         public Task<int> Add(Product product);
         public Task<int> Update(Product product);
         public Task<int> DeleteById(Guid id);

@@ -18,6 +18,8 @@ namespace APICH.BL.Services.Classes
             return await repository.Add(product);
         }
 
+
+
         public async Task<int> DeleteById(Guid id)
         {
             return await repository.DeleteById(id);
@@ -70,6 +72,26 @@ namespace APICH.BL.Services.Classes
                 query = query.Where(i => i.Name.Contains(term) || i.Description.Contains(term));
             }
             var model = await query.Take(10).ToListAsync();
+            return model;
+        }
+        public async Task<List<Product>> AdvancedSearch(string? search , int? maxPrice , int? minPrice , Guid? category)
+        {
+            var searchTerms = search?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? new string[] { };
+            var query = repository.GetTable();
+            if(!string.IsNullOrWhiteSpace(search))
+            {
+                foreach (var term in searchTerms)
+                {
+                    query = query.Where(i => i.Name.Contains(term) || i.Description.Contains(term));
+                }
+            }
+            if (category != null)
+                query = query.Where(a => a.CategoriesId ==  category);
+            if(maxPrice != null)
+                query = query.Where(a => a.Price <= maxPrice);
+            if(minPrice != null)
+                query = query.Where(a => a.Price >= minPrice);
+            var model = await query.Take(10).OrderBy(a => a.CreateAt).ToListAsync();
             return model;
         }
 
