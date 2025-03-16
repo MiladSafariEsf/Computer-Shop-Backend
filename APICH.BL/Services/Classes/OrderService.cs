@@ -47,12 +47,12 @@ namespace APICH.BL.Services.Classes
 
         public async Task<List<Orders>> GetAllDeliveredOrders(int PageNumber)
         {
-            return await repository.GetTable().Where(x => x.IsDelivered == true).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).OrderBy(a => a.CreateAt).ToListAsync();
+            return await repository.GetTable().Where(x => x.IsDelivered == true).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).OrderByDescending(a => a.CreateAt).ToListAsync();
         }
 
         public async Task<List<Orders>> GetAllOrders(int PageNumber)
         {
-            var d = await repository.GetTable().Where(x => x.IsDelivered == false).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).ToListAsync();
+            var d = await repository.GetTable().Where(x => x.IsDelivered == false).OrderBy(a => a.UserNumber).Skip((PageNumber - 1) * 10).Take(10).Include(a => a.User).Include(a => a.OrderDetails).ThenInclude(a => a.Product).OrderBy(a => a.CreateAt).ToListAsync();
             d.Select(a => a.CreateAt = a.CreateAt.Date);
             return d;
         }
@@ -72,9 +72,9 @@ namespace APICH.BL.Services.Classes
             throw new NotImplementedException();
         }
 
-        public Task<List<Orders>> GetOrderByUserNumber(string UserNumber)
+        public async Task<List<Orders>> GetOrderByUserNumber(string UserNumber)
         {
-            throw new NotImplementedException();
+            return await repository.GetTable().Where(x => x.UserNumber == UserNumber).Include(x => x.OrderDetails).ThenInclude(a => a.Product).Include(x => x.User).ToListAsync();
         }
 
         public Task<int> GetOrderCount()

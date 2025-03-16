@@ -16,10 +16,10 @@ namespace APICH.CORE.Entity
         [JsonIgnore]
         public string Salt { get; set; }
         public string Number {  get; set; }
+        public string Address { get; set; }
         public bool IsAdmin { get; set; }
         [JsonIgnore]
         public List<Reviews> Reviews { get; set; }
-        [JsonIgnore]
         public List<Orders> Orders { get; set; }
     }
 }

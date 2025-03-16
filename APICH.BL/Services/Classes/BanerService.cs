@@ -37,9 +37,9 @@ namespace APICH.BL.Services.Classes
             return await repository.GetTable().Where(x => x.IsActive == true).OrderBy(a => a.BanerName).ToListAsync();
         }
 
-        public async Task<List<Baners>> GetAllBanersAdmin(int PageNumber)
+        public async Task<List<Baners>> GetAllBanersAdmin()
         {
-            return await repository.GetTable().OrderBy(a => a.BanerName).Skip((PageNumber - 1) * 10).Take(10).ToListAsync();
+            return await repository.GetTable().OrderBy(a => a.BanerName).ToListAsync();
         }
 
         public Task<Baners> GetBannerById(Guid id)

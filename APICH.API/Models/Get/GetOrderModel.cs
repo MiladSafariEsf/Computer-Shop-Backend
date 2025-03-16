@@ -5,9 +5,12 @@
         public Guid Id { get; set; }
         public string UserName { get; set; }
         public string UserNumber { get; set; }
-        public Guid ProductId { get; set; }
-        public string ProductName { get; set; }
-        public int ProductNumber { get; set; }
+        public string Address { get; set; }
+        public string CreateAt { get; set; }
+        public decimal totalPrice { get; set; }
+        public bool IsDelivered { get; set; }
+        public List<GetOrderDetailModel> Details { get; set; }
+        
 
     }
 }

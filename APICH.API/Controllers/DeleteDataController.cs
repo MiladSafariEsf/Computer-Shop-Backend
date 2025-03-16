@@ -7,6 +7,7 @@ using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using SFM.Security;
+using System.Reflection;
 using System.Security.Claims;
 namespace APICH.API.Controllers
 {
@@ -68,7 +69,15 @@ namespace APICH.API.Controllers
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
             if (rol != Role.Admin())
                 return Forbid("Access denied. Insufficient permissions.");
-            if (await categoryService.DeleteCategoryById(CategoryId) == 1)
+            var cat = await categoryService.GetCategoryById(CategoryId);
+            foreach (var p in cat.Products)
+            {
+                if (System.IO.File.Exists(p.ImageUrl))
+                {
+                    System.IO.File.Delete(p.ImageUrl);
+                }
+            }
+            if (await categoryService.DeleteCategoryById(CategoryId) > 0)
                 return Ok("Remove was success full");
             return BadRequest();
         }

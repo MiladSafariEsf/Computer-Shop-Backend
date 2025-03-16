@@ -25,6 +25,7 @@ namespace APICH.DAL
                 options.HasMany(x => x.Reviews)
                 .WithOne(x => x.Product)
                 .HasForeignKey(x => x.ProductId);
+                
             });
             modelBuilder.Entity<User>(options =>
             {
@@ -57,6 +58,7 @@ namespace APICH.DAL
             });
             modelBuilder.Entity<Reviews>(options =>
             {
+                options.Property(x => x.Comment).HasMaxLength(200);
                 options.ToTable(nameof(Reviews));
                 options.HasKey(a => a.Id);
                 

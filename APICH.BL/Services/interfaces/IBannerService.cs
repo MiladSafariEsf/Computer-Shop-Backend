@@ -11,7 +11,7 @@ namespace APICH.BL.Services.interfaces
     {
         public Task<Baners> GetBannerById(Guid id); 
         public Task<List<Baners>> GetAllBaners();
-        public Task<List<Baners>> GetAllBanersAdmin(int PageNumber);
+        public Task<List<Baners>> GetAllBanersAdmin();
         public Task<int> DeleteBanerById(Guid id);
         public Task<int> EditBaner(Baners baners);
         public Task<int> AddBaner(Baners baner);

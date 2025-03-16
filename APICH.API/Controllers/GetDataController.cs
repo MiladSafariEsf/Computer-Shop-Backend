@@ -12,6 +12,7 @@ using PersianDate;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using PersianDate.Standard;
+using Microsoft.AspNetCore.Http.HttpResults;
 namespace APICH.API.Controllers
 {
     [Route("[controller]")]
@@ -117,8 +118,23 @@ namespace APICH.API.Controllers
             if (rol != Role.Admin())
                 return Forbid("Access denied. Insufficient permissions.");
 
-            var OrderL = await orderService.GetAllOrders(PageNumber);
-            return Ok(OrderL);
+            var Orders = await orderService.GetAllOrders(PageNumber);
+            var OrdersModel = Orders.Select(o => new GetOrderModel()
+            {
+                Id = o.Id,
+                CreateAt = o.CreateAt.ToFa(),
+                Details = o.OrderDetails.Select(d => new GetOrderDetailModel()
+                {
+                    ProductName = d.Product.Name,
+                    Stock = d.Quantity,
+                    UnitPrice = d.UnitPrice,
+                }).ToList(),
+                UserName = o.User.UserName,
+                UserNumber = o.User.Number,
+                Address = o.User.Address,
+                totalPrice = o.TotalPrice,
+            }).ToList();
+            return Ok(OrdersModel);
         }
         [HttpGet("GetAllDeliveredOrder")]
         public async Task<IActionResult> GetAllDeliveredOrder(int PageNumber)
@@ -133,22 +149,24 @@ namespace APICH.API.Controllers
             if (rol != Role.Admin())
                 return Forbid("Access denied. Insufficient permissions.");
 
-            var OrderL = await orderService.GetAllDeliveredOrders(PageNumber);
-            //var orderListModel = new List<GetOrderModel>();
-            //foreach (var Item in OrderL)
-            //{
-            //    var Order = new GetOrderModel()
-            //    {
-            //        Id = Item.Id,
-            //        UserName = Item.User.UserName,
-            //        //ProductId = Item.ProductId,
-            //        UserNumber = Item.UserNumber,
-            //        //ProductName = Item.Product.Name,
-            //        //ProductNumber = Item.Number,
-            //    };
-            //    orderListModel.Add(Order);
-            //}
-            return Ok(OrderL);
+            var Orders = await orderService.GetAllDeliveredOrders(PageNumber);
+            var OrdersModel = Orders.Select(o => new GetOrderModel()
+            {
+                Id = o.Id,
+                CreateAt = o.CreateAt.ToFa(),
+                Details = o.OrderDetails.Select(d => new GetOrderDetailModel()
+                {
+                    ProductName = d.Product.Name,
+                    Stock = d.Quantity,
+                    UnitPrice = d.UnitPrice,
+                }).ToList(),
+                UserName = o.User.UserName,
+                UserNumber = o.User.Number,
+                Address = o.User.Address,
+                totalPrice = o.TotalPrice,
+            }).ToList();
+
+            return Ok(OrdersModel);
         }
         [HttpGet("GetOrderCount")]
         public async Task<IActionResult> GetOrderCount()
@@ -318,7 +336,7 @@ namespace APICH.API.Controllers
             return Ok(await banerService.GetAllBaners());
         }
         [HttpGet("GetAllBannersAdmin")]
-        public async Task<IActionResult> GetAllBannersAdmin(int PageNumber)
+        public async Task<IActionResult> GetAllBannersAdmin()
         {
             var token = Request.Cookies["AuthToken"];
             var t = await jwt.ValidateToken(token);
@@ -329,7 +347,37 @@ namespace APICH.API.Controllers
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
             if (rol != Role.Admin())
                 return Forbid("Access denied. Insufficient permissions.");
-            return Ok(await banerService.GetAllBanersAdmin(PageNumber));
+            return Ok(await banerService.GetAllBanersAdmin());
+        }
+        [HttpGet("GetMyOrders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+
+            var Orders = await orderService.GetOrderByUserNumber(Number);
+
+            var OrdersModel = Orders.Select(o => new GetOrderModel() 
+            {
+                Id = o.Id,
+                CreateAt = o.CreateAt.ToFa(),
+                Details =o.OrderDetails.Select( d => new GetOrderDetailModel()
+                {
+                    ProductName = d.Product.Name,
+                    Stock = d.Quantity,
+                    UnitPrice = d.UnitPrice,
+                }).ToList(),
+                UserName = o.User.UserName,
+                UserNumber = o.User.Number,
+                Address = o.User.Address,
+                totalPrice = o.TotalPrice,
+                IsDelivered = o.IsDelivered,
+            }).ToList();
+            return Ok(OrdersModel);
         }
     }
 }

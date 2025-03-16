@@ -64,6 +64,7 @@ namespace APICH.API.Controllers
                     Salt = salt,
                     CreatedAt = DateTime.Now,
                     IsAdmin = false,
+                    Address = model.Address,
                 };
                 var cookieOptions = new CookieOptions
                 {

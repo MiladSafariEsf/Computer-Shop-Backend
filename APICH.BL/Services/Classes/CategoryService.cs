@@ -42,7 +42,7 @@ namespace APICH.BL.Services.Classes
 
         public async Task<Categories> GetCategoryById(Guid Id)
         {
-            return await repository.GetById(Id);
+            return await repository.GetTable().Include(a => a.Products).FirstOrDefaultAsync(a => a.Id == Id);
         }
 
         public async Task<int> GetCategoryCount()

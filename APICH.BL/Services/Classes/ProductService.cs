@@ -45,19 +45,10 @@ namespace APICH.BL.Services.Classes
 
         public async Task<List<Product>> GetByIds(List<Guid> productIds)
         {
-            var query = repository.GetTable()
-                .Where(p => productIds.Contains(p.Id));
-
-            Console.WriteLine(query.ToQueryString());
-
-
             return await repository.GetTable()
                 .Where(p => productIds.Contains(p.Id))
                 .ToListAsync();
         }
-
-
-
         public async Task<int> GetProductCount()
         {
             return await repository.GetTable().CountAsync();
@@ -71,7 +62,7 @@ namespace APICH.BL.Services.Classes
             {
                 query = query.Where(i => i.Name.Contains(term) || i.Description.Contains(term));
             }
-            var model = await query.Take(10).ToListAsync();
+            var model = await query.Where(a => a.Stock > 0).Take(20).OrderByDescending(a => a.CreateAt).ToListAsync();
             return model;
         }
         public async Task<List<Product>> AdvancedSearch(string? search , int? maxPrice , int? minPrice , Guid? category)
@@ -91,7 +82,7 @@ namespace APICH.BL.Services.Classes
                 query = query.Where(a => a.Price <= maxPrice);
             if(minPrice != null)
                 query = query.Where(a => a.Price >= minPrice);
-            var model = await query.Take(10).OrderBy(a => a.CreateAt).ToListAsync();
+            var model = await query.Where(a => a.Stock > 0).Take(20).OrderByDescending(a => a.CreateAt).ToListAsync();
             return model;
         }
 
