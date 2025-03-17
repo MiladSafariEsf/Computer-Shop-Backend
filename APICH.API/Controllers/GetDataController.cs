@@ -1,18 +1,12 @@
-﻿using APICH.API.Models;
+﻿using System.Security.Claims;
 using APICH.API.Models.Get;
 using APICH.API.Security;
-using APICH.BL.Services.Classes;
 using APICH.BL.Services.interfaces;
 using APICH.CORE.Entity;
-using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using SFM.Security;
-using PersianDate;
-using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using PersianDate.Standard;
-using Microsoft.AspNetCore.Http.HttpResults;
+using SFM.Security;
 namespace APICH.API.Controllers
 {
     [Route("[controller]")]
@@ -27,7 +21,7 @@ namespace APICH.API.Controllers
         private readonly IOrderService orderService;
         private readonly JwtService jwt;
 
-        public GetDataController(IBannerService banerService , IUserService userService, IReviewService reviewService,IProductService productService,ICategoryService categoryService, IOrderService orderService, JwtService jwt)
+        public GetDataController(IBannerService banerService, IUserService userService, IReviewService reviewService, IProductService productService, ICategoryService categoryService, IOrderService orderService, JwtService jwt)
         {
             this.banerService = banerService;
             this.userService = userService;
@@ -92,6 +86,15 @@ namespace APICH.API.Controllers
         [HttpGet("GetAllAdminProduct")]
         public async Task<IActionResult> GetAllAdminProduct(int PageNumber)
         {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin() && rol != Role.Owner())
+                return Forbid("Access denied. Insufficient permissions.");
             var model = await productService.GetAllAdmin(PageNumber);
             return Ok(model);
         }
@@ -101,9 +104,9 @@ namespace APICH.API.Controllers
             return Ok(await productService.Search(search));
         }
         [HttpGet("AdvancedSearchProduct")]
-        public async Task<IActionResult> AdvancedSearchProduct(string? search,int? maxPrice,int? minPrice,Guid? category)
+        public async Task<IActionResult> AdvancedSearchProduct(string? search, int? maxPrice, int? minPrice, Guid? category)
         {
-            return Ok(await productService.AdvancedSearch(search,maxPrice,minPrice,category));
+            return Ok(await productService.AdvancedSearch(search, maxPrice, minPrice, category));
         }
         [HttpGet("GetAllOrder")]
         public async Task<IActionResult> GetAllOrder(int PageNumber)
@@ -115,7 +118,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var Orders = await orderService.GetAllOrders(PageNumber);
@@ -146,7 +149,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var Orders = await orderService.GetAllDeliveredOrders(PageNumber);
@@ -178,7 +181,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await orderService.GetOrderCount());
         }
@@ -192,7 +195,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await orderService.GetDeliveredOrderCount());
         }
@@ -206,7 +209,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await productService.GetProductCount());
         }
@@ -231,7 +234,7 @@ namespace APICH.API.Controllers
             return Ok(await reviewService.GetReviewByProductId(ProductId));
         }
         [HttpGet("GetAllDataOfProductById")]
-        public async Task<IActionResult> GetAllDataOfProductById(Guid Id) 
+        public async Task<IActionResult> GetAllDataOfProductById(Guid Id)
         {
             string UserName = null;
             var token = Request.Cookies["AuthToken"];
@@ -249,7 +252,7 @@ namespace APICH.API.Controllers
                 {
                     Id = p.Id,
                     UserName = p.User.UserName,
-                    Comment = p.Comment, 
+                    Comment = p.Comment,
                     Rating = p.Rating,
                     IsOwner = p.UserNumber == Number,
                     date = p.CreateAt.ToFa(),
@@ -283,7 +286,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await banerService.GetBanerCountAdmin());
         }
@@ -345,7 +348,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             return Ok(await banerService.GetAllBanersAdmin());
         }
@@ -361,11 +364,11 @@ namespace APICH.API.Controllers
 
             var Orders = await orderService.GetOrderByUserNumber(Number);
 
-            var OrdersModel = Orders.Select(o => new GetOrderModel() 
+            var OrdersModel = Orders.Select(o => new GetOrderModel()
             {
                 Id = o.Id,
                 CreateAt = o.CreateAt.ToFa(),
-                Details =o.OrderDetails.Select( d => new GetOrderDetailModel()
+                Details = o.OrderDetails.Select(d => new GetOrderDetailModel()
                 {
                     ProductName = d.Product.Name,
                     Stock = d.Quantity,
@@ -378,6 +381,57 @@ namespace APICH.API.Controllers
                 IsDelivered = o.IsDelivered,
             }).ToList();
             return Ok(OrdersModel);
+        }
+        [HttpGet("SearchUsers")]
+        public async Task<IActionResult> SearchUsers(string Search, int PageNumber)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Owner())
+                return Forbid("Access denied. Insufficient permissions.");
+
+            var Users = await userService.SearchUser(Search, PageNumber);
+            var UsersModel = new
+            {
+                Count = Users.Count,
+                Users = Users.Select(User => new GetUserModel()
+                {
+                    Id = User.Id,
+                    Number = User.Number,
+                    Role = User.Role,
+                    UserName = User.UserName,
+                })
+            };
+            return Ok(UsersModel);
+        }
+        [HttpGet("GetAllUser")]
+        public async Task<IActionResult> GetAllUser(int PageNumber)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Owner())
+                return Forbid("Access denied. Insufficient permissions.");
+            var Users = await userService.GetAllUser(PageNumber);
+            var UsersModel = new
+            {
+                Count = Users.Count,
+                Users = Users.Select(User => new GetUserModel()
+                {
+                    Id = User.Id,
+                    Number = User.Number,
+                    Role = User.Role,
+                    UserName = User.UserName,
+                })
+            };
+            return Ok(UsersModel);
         }
     }
 }

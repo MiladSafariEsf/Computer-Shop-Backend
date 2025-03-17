@@ -38,14 +38,7 @@ namespace APICH.API.Controllers
                 Expires = DateTime.UtcNow.AddDays(7)
             };
             string token;
-            if (User.IsAdmin == true)
-            {
-                token = await jwt.GenerateToken(model.Number, Role.Admin());
-            }
-            else
-            {
-                token = await jwt.GenerateToken(model.Number, Role.User());
-            }
+            token = await jwt.GenerateToken(model.Number, User.Role);
             Response.Cookies.Append("AuthToken", token, cookieOptions);
             return Ok("Login was success full!");
         }
@@ -63,7 +56,7 @@ namespace APICH.API.Controllers
                     HashedPassword = PasswordHasher.HashPasswordWithSalt(model.Password, out string salt),
                     Salt = salt,
                     CreatedAt = DateTime.Now,
-                    IsAdmin = false,
+                    Role = Role.User(),
                     Address = model.Address,
                 };
                 var cookieOptions = new CookieOptions
@@ -95,12 +88,12 @@ namespace APICH.API.Controllers
                 return StatusCode(203);
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var user = await userService.GetByNumber(Number);
-            bool isAdmin = t.FindFirst(ClaimTypes.Role)?.Value == Role.Admin();
+
             var model = new UserDataModel()
             {
                 number = user.Number,
                 username = user.UserName,
-                isAdmin = isAdmin,
+                Role = t.FindFirst(ClaimTypes.Role).Value,
             };
             return Ok(model);
         }
@@ -111,9 +104,34 @@ namespace APICH.API.Controllers
             var t = await jwt.ValidateToken(token);
             if (t == null)
                 return StatusCode(203);
-            if (t.FindFirst(ClaimTypes.Role)?.Value == Role.Admin())
+            var role = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (role == Role.Admin() || role == Role.Owner())
                 return Ok();
             return StatusCode(203, "دسترسی غیر مجاز");
+        }
+        [HttpPost("IsOwner")]
+        public async Task<IActionResult> IsOwner()
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return StatusCode(203);
+            if (t.FindFirst(ClaimTypes.Role)?.Value == Role.Owner())
+                return Ok();
+            return StatusCode(203, "دسترسی غیر مجاز");
+        }
+        [HttpPut("TuggleAdmin")]
+        public async Task<IActionResult> TuggleAdmin(string Number)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return Unauthorized("Invalid or expired token.");
+
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Owner())
+                return Forbid("Access denied. Insufficient permissions.");
+            return Ok(await userService.TuggleAdminByNumber(Number));
         }
     }
 }

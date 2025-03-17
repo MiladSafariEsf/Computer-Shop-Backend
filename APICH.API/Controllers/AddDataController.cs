@@ -50,7 +50,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var i = Guid.NewGuid();
@@ -84,8 +84,6 @@ namespace APICH.API.Controllers
 
             var number = t.FindFirst(ClaimTypes.Name)?.Value;
             var role = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (role != Role.Admin())
-                return Forbid("Access denied. Insufficient permissions.");
 
             if (orderModels == null || orderModels.Count == 0)
                 return BadRequest("The order list cannot be empty.");
@@ -167,6 +165,9 @@ namespace APICH.API.Controllers
             if (t == null)
                 return Unauthorized("Invalid or expired token.");
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = t.FindFirst(ClaimTypes.Role)?.Value;
+            if (rol != Role.Admin() && rol != Role.Owner())
+                return Forbid("Access denied. Insufficient permissions.");
             var User = await userService.GetByNumber(Number);
             if (User == null)
             {
@@ -193,7 +194,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var i = Guid.NewGuid();

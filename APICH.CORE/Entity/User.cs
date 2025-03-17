@@ -17,7 +17,7 @@ namespace APICH.CORE.Entity
         public string Salt { get; set; }
         public string Number {  get; set; }
         public string Address { get; set; }
-        public bool IsAdmin { get; set; }
+        public string Role { get; set; }
         [JsonIgnore]
         public List<Reviews> Reviews { get; set; }
         public List<Orders> Orders { get; set; }

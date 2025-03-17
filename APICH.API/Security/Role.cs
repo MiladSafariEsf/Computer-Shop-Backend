@@ -10,5 +10,9 @@
         {
             return "User";
         }
+        static public string Owner()
+        {
+            return "Owner";
+        }
     }
 }

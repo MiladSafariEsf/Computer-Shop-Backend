@@ -40,7 +40,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var product = await productService.GetById(ProductId);
@@ -67,7 +67,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
             var cat = await categoryService.GetCategoryById(CategoryId);
             foreach (var p in cat.Products)
@@ -108,7 +108,7 @@ namespace APICH.API.Controllers
 
             var Number = t.FindFirst(ClaimTypes.Name)?.Value;
             var rol = t.FindFirst(ClaimTypes.Role)?.Value;
-            if (rol != Role.Admin())
+            if (rol != Role.Admin() && rol != Role.Owner())
                 return Forbid("Access denied. Insufficient permissions.");
 
             var Banner = await bannerService.GetBannerById(BannerId);

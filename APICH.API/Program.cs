@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-
+using APICH.API.Security;
 using APICH.DAL.Repository;
 using APICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using SFM.Security;
 using APICH.BL.Services.interfaces;
 using APICH.BL.Services.Classes;
+using APICH.CORE.Entity;
+using Microsoft.Extensions.Configuration;
 
 namespace APICH.API
 {
@@ -24,7 +26,7 @@ namespace APICH.API
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IBannerService, BanerService>();
-            builder.Services.AddScoped<JwtService>();
+            builder.Services.AddSingleton<JwtService>();
             builder.Services.AddControllers();
             builder.Services.AddDbContext<APICH_DbContext>(options =>
             {
@@ -71,7 +73,12 @@ namespace APICH.API
             //        }
             //    }
             //});
-
+            var configuration = builder.Configuration;
+            using (var scope = app.Services.CreateScope())
+            {
+                var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+                SeedAdminUser(userService, configuration).GetAwaiter().GetResult();
+            }
             //app.UseRateLimiter();
             // Configure the HTTP request pipeline.
             app.UseCors("AllowSpecificOrigin");
@@ -81,6 +88,31 @@ namespace APICH.API
             app.MapControllers();
 
             app.Run();
+        }
+        private static async Task SeedAdminUser(IUserService userService, IConfiguration configuration)
+        {
+            if (await userService.GetByNumber("09136801391") == null)
+            {
+                var Owner = new
+                {
+                    UserName = configuration["Owner:UserName"] ?? throw new ArgumentNullException("Owner:UserName is missing in configuration."),
+                    UserNumber = configuration["Owner:UserNumber"] ?? throw new ArgumentNullException("Owner:UserNumber is missing in configuration."),
+                    Password = configuration["Owner:Password"] ?? throw new ArgumentNullException("Owner:Password is missing in configuration.")
+                };
+                var admin = new User
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = Owner.UserName,
+                    Address = "",
+                    CreatedAt = DateTime.Now,
+                    HashedPassword = PasswordHasher.HashPasswordWithSalt(Owner.Password, out string salt), // در حالت واقعی هش کن
+                    Number = Owner.UserNumber,
+                    Salt = salt,
+                    Role = Role.Owner(),
+                };
+
+                await userService.AddUser(admin);
+            }
         }
     }
 }
