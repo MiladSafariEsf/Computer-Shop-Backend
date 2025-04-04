@@ -96,5 +96,10 @@ namespace APICH.BL.Services.Classes
             pro.ImageUrl = product.ImageUrl;
             return await repository.Update();
         }
+
+        public async Task<List<Product>> GetProductsById(List<Guid> productIds)
+        {
+            return await repository.GetTable().Where(a => productIds.Contains(a.Id)).ToListAsync();
+        }
     }
 }

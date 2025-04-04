@@ -91,7 +91,7 @@ namespace APICH.API
         }
         private static async Task SeedAdminUser(IUserService userService, IConfiguration configuration)
         {
-            if (await userService.GetByNumber("09136801391") == null)
+            if (await userService.GetByNumber(configuration["Owner:UserNumber"] ?? throw new ArgumentNullException("Owner:UserNumber is missing in configuration.")) == null)
             {
                 var Owner = new
                 {

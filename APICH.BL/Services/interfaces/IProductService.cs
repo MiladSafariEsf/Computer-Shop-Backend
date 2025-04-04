@@ -20,6 +20,6 @@ namespace APICH.BL.Services.interfaces
         public Task<int> Update(Product product);
         public Task<int> DeleteById(Guid id);
         public Task<int> GetProductCount();
-
+        public Task<List<Product>> GetProductsById(List<Guid> productIds);
     }
 }

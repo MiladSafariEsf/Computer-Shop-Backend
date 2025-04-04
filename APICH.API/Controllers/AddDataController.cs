@@ -171,6 +171,10 @@ namespace APICH.API.Controllers
             var User = await userService.GetByNumber(Number);
             if (User == null)
             {
+                return BadRequest("UserEmpty");
+            }
+            if (string.IsNullOrEmpty(categoryModel.CategoryName))
+            {
                 return BadRequest("Empty");
             }
             var Category = new Categories()
