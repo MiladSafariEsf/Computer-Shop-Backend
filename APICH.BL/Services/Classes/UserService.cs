@@ -59,10 +59,8 @@ namespace APICH.BL.Services.Classes
             return await repository.Update();
         }
 
-        public async Task<int> UpdateUser(User user)
+        public async Task<int> UpdateUser()
         {
-            var User = await repository.GetById(user.Id);
-            User.HashedPassword = user.HashedPassword;
             return await repository.Update();
         }
     }

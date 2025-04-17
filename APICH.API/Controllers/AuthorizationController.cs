@@ -79,6 +79,38 @@ namespace APICH.API.Controllers
             Response.Cookies.Delete("AuthToken");
             return Ok(new { message = "Logged out successfully" });
         }
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return StatusCode(203);
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var user = await userService.GetByNumber(Number);
+            if (PasswordHasher.VerifyPassword(model.oldPassword,user.Salt,user.HashedPassword))
+            {
+                user.HashedPassword = PasswordHasher.HashPasswordWithSalt(model.newPassword, out string salt);
+                user.Salt = salt;
+                await userService.UpdateUser();
+                return Ok();
+            }
+            return BadRequest();
+        }
+        [HttpPut("ChangeName")]
+        public async Task<IActionResult> ChangeName(ChangeNameModel model)
+        {
+            var token = Request.Cookies["AuthToken"];
+            var t = await jwt.ValidateToken(token);
+            if (t == null)
+                return StatusCode(203);
+            var Number = t.FindFirst(ClaimTypes.Name)?.Value;
+            var user = await userService.GetByNumber(Number);
+
+            user.UserName = model.Name;
+            await userService.UpdateUser();
+            return Ok();
+        }
         [HttpPost("GetUserData")]
         public async Task<IActionResult> GetUserData()
         {
