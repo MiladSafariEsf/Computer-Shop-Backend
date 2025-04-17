@@ -1,7 +1,7 @@
 ﻿using APICH.API.Models;
 using APICH.API.Security;
 using APICH.BL.Services.Classes;
-using APICH.BL.Services.interfaces;
+using APICH.CORE.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.AspNetCore.Mvc;

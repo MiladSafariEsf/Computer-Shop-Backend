@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APICH.CORE.Entity;
 
-namespace APICH.BL.Services.interfaces
+namespace APICH.CORE.interfaces
 {
     public interface IBannerService
     {

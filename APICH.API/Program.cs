@@ -5,7 +5,7 @@ using APICH.DAL.Repository;
 using APICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using SFM.Security;
-using APICH.BL.Services.interfaces;
+using APICH.CORE.interfaces;
 using APICH.BL.Services.Classes;
 using APICH.CORE.Entity;
 using Microsoft.Extensions.Configuration;

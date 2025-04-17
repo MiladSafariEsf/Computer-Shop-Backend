@@ -1,6 +1,6 @@
 ﻿using APICH.API.Models.Edit;
 using APICH.API.Security;
-using APICH.BL.Services.interfaces;
+using APICH.CORE.interfaces;
 using APICH.CORE.Entity;
 using Microsoft.AspNetCore.Mvc;
 using SFM.Security;

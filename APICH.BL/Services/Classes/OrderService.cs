@@ -1,4 +1,4 @@
-﻿using APICH.BL.Services.interfaces;
+﻿using APICH.CORE.interfaces;
 using APICH.CORE.Entity;
 using APICH.DAL.Repository;
 using Microsoft.EntityFrameworkCore;

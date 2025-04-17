@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APICH.BL.Services.interfaces
+namespace APICH.CORE.interfaces
 {
     public interface IOrderService
     {

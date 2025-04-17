@@ -1,12 +1,5 @@
 ﻿using APICH.CORE.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APICH.DAL
 {
@@ -25,7 +18,7 @@ namespace APICH.DAL
                 options.HasMany(x => x.Reviews)
                 .WithOne(x => x.Product)
                 .HasForeignKey(x => x.ProductId);
-                
+
             });
             modelBuilder.Entity<User>(options =>
             {
@@ -50,7 +43,7 @@ namespace APICH.DAL
             //v12
             modelBuilder.Entity<Categories>(options =>
             {
-                options.ToTable(nameof(Categories)); 
+                options.ToTable(nameof(Categories));
                 options.HasKey(a => a.Id);
                 options.HasMany(a => a.Products)
                 .WithOne(a => a.Categories)
@@ -61,7 +54,7 @@ namespace APICH.DAL
                 options.Property(x => x.Comment).HasMaxLength(200);
                 options.ToTable(nameof(Reviews));
                 options.HasKey(a => a.Id);
-                
+
             });
             modelBuilder.Entity<OrderDetails>(options =>
             {

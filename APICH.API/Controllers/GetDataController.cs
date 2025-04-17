@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using APICH.API.Models.Get;
 using APICH.API.Security;
-using APICH.BL.Services.interfaces;
+using APICH.CORE.interfaces;
 using APICH.CORE.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
